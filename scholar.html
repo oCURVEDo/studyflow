@@ -3,149 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Scholar - StudyFlow AI</title>
+    <title>Smart Scholar AI - StudyFlow</title>
     <style>
-        body { background-color: #0f172a; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        body { background-color: #0f172a; color: white; font-family: 'Inter', sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; }
         
-        .scholar-container {
-            width: 90%;
-            max-width: 800px;
-            background: rgba(30, 41, 59, 0.7);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(168, 85, 247, 0.2);
-            border-radius: 30px;
-            padding: 40px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-        }
+        /* Chat Container */
+        .chat-wrapper { flex: 1; display: flex; flex-direction: column; max-width: 900px; margin: 0 auto; width: 100%; padding: 20px; box-sizing: border-box; }
+        
+        #chat-window { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; scrollbar-width: thin; }
+        
+        /* Message Bubbles */
+        .message { max-width: 80%; padding: 15px 20px; border-radius: 20px; line-height: 1.5; font-size: 1rem; }
+        .user-msg { align-self: flex-end; background: #a855f7; color: white; border-bottom-right-radius: 5px; }
+        .ai-msg { align-self: flex-start; background: #1e293b; border: 1px solid rgba(168, 85, 247, 0.3); border-bottom-left-radius: 5px; }
 
-        .header { text-align: center; margin-bottom: 30px; }
-        .header h1 { color: #a855f7; margin: 0; font-size: 2.2rem; letter-spacing: -1px; }
-        .header p { opacity: 0.6; font-size: 0.9rem; }
+        /* Input Area */
+        .input-box { background: #1e293b; padding: 20px; border-radius: 25px; display: flex; gap: 10px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; }
+        input { flex: 1; background: transparent; border: none; color: white; outline: none; font-size: 1rem; }
+        
+        .send-btn { background: #a855f7; border: none; color: white; padding: 10px 20px; border-radius: 15px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .send-btn:hover { transform: scale(1.05); background: #7c3aed; }
 
-        .input-area { display: flex; flex-direction: column; gap: 20px; }
-
-        textarea {
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 20px;
-            color: white;
-            font-size: 1rem;
-            resize: none;
-            outline: none;
-            transition: 0.3s;
-        }
-
-        textarea:focus { border-color: #a855f7; box-shadow: 0 0 15px rgba(168, 85, 247, 0.2); }
-
-        .controls { display: flex; gap: 15px; }
-
-        select {
-            background: #1e293b;
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 10px;
-            border-radius: 10px;
-            flex: 1;
-            outline: none;
-        }
-
-        .btn-solve {
-            background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .btn-solve:hover { transform: scale(1.05); box-shadow: 0 5px 15px rgba(168, 85, 247, 0.4); }
-
-        /* AI Result Area */
-        #result-display {
-            margin-top: 30px;
-            padding: 25px;
-            background: rgba(168, 85, 247, 0.05);
-            border-radius: 20px;
-            border: 1px dashed rgba(168, 85, 247, 0.3);
-            display: none;
-            line-height: 1.6;
-        }
-
-        .typing { overflow: hidden; border-right: .15em solid #a855f7; white-space: pre-wrap; animation: blink-caret .75s step-end infinite; }
-        @keyframes blink-caret { from, to { border-color: transparent } 50% { border-color: #a855f7; } }
-
-        .back-link { position: absolute; top: 20px; left: 20px; color: rgba(255,255,255,0.4); text-decoration: none; font-size: 0.8rem; }
-        .back-link:hover { color: #a855f7; }
+        .back-link { padding: 15px; color: rgba(255,255,255,0.4); text-decoration: none; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
-    <a href="index.html" class="back-link">← BACK TO DASHBOARD</a>
+    <a href="index.html" class="back-link">← DASHBOARD</a>
 
-    <div class="scholar-container">
-        <div class="header">
-            <h1>Smart Scholar AI</h1>
-            <p>The Academic Oracle | Universal Board & Textbook Support</p>
+    <div class="chat-wrapper">
+        <header style="text-align: center; margin-bottom: 10px;">
+            <h2 style="color: #a855f7; margin: 0;">Smart Scholar AI</h2>
+            <p style="opacity: 0.5; font-size: 0.8rem;">Universal Academic Assistant</p>
+        </header>
+
+        <div id="chat-window">
+            <div class="message ai-msg">Hello! I am your Smart Scholar. Ask me anything from any textbook or subject. How can I help you today?</div>
         </div>
 
-        <div class="input-area">
-            <textarea id="user-question" rows="5" placeholder="Enter any question from any textbook (Science, History, Literature, etc.)..."></textarea>
-            
-            <div class="controls">
-                <select id="academic-level">
-                    <option value="Middle School">Middle School</option>
-                    <option value="High School" selected>High School (CBSE/ICSE/GCSE)</option>
-                    <option value="College">College / University</option>
-                </select>
-                <button class="btn-solve" onclick="askScholar()">Solve with AI</button>
-            </div>
-        </div>
-
-        <div id="result-display">
-            <div id="ai-text" class="typing"></div>
+        <div class="input-box">
+            <input type="text" id="user-input" placeholder="Type your question here (e.g. Explain Photosynthesis)..." onkeypress="if(event.key === 'Enter') sendMessage()">
+            <button class="send-btn" onclick="sendMessage()">ASK AI</button>
         </div>
     </div>
 
     <script>
-        function askScholar() {
-            const question = document.getElementById('user-question').value;
-            const level = document.getElementById('academic-level').value;
-            const display = document.getElementById('result-display');
-            const textContainer = document.getElementById('ai-text');
+        const API_KEY = "AIzaSyDrO1Qsar2A_p650LWBoqDQ8mWfMclEt1M"; // PASTE YOUR KEY HERE
 
-            if (question.trim() === "") {
-                alert("Please enter a question first!");
-                return;
-            }
+        async function sendMessage() {
+            const inputField = document.getElementById('user-input');
+            const chatWindow = document.getElementById('chat-window');
+            const prompt = inputField.value.trim();
 
-            display.style.display = "block";
-            textContainer.innerHTML = "Consulting the Academic Oracle...";
+            if (!prompt) return;
 
-            // Simulation of AI thinking
-            setTimeout(() => {
-                const response = `[ACADEMIC LEVEL: ${level}]\n\n` + 
-                                 `CORE CONCEPT: Your question involves a fundamental principle of this subject.\n\n` +
-                                 `EXPERT ANSWER:\n1. Based on global textbook standards, the most accurate explanation is that this process occurs when specific variables align.\n` +
-                                 `2. KEYWORDS TO INCLUDE: Critical Thinking, Analysis, and Systematic Observation.\n\n` +
-                                 `STUDY TIP: For full marks in your board exams, always define the terms first before explaining the mechanism.`;
+            // 1. Add User Message
+            addMessage(prompt, 'user-msg');
+            inputField.value = "";
+
+            // 2. Add Loading State
+            const loadingMsg = addMessage("Thinking...", 'ai-msg');
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: `You are an academic expert. Answer this question clearly for a student: ${prompt}` }] }]
+                    })
+                });
+
+                const data = await response.json();
+                const aiResponse = data.candidates[0].content.parts[0].text;
                 
-                typeWriter(response);
-            }, 1500);
+                // 3. Update Loading Message with real answer
+                loadingMsg.innerText = aiResponse;
+            } catch (error) {
+                loadingMsg.innerText = "Error: Could not connect to AI. Check your API key!";
+            }
+            
+            chatWindow.scrollTop = chatWindow.scrollHeight;
         }
 
-        let i = 0;
-        function typeWriter(txt) {
-            if (i === 0) document.getElementById('ai-text').innerHTML = "";
-            if (i < txt.length) {
-                document.getElementById('ai-text').innerHTML += txt.charAt(i);
-                i++;
-                setTimeout(() => typeWriter(txt), 20);
-            } else {
-                i = 0; // Reset for next time
-            }
+        function addMessage(text, className) {
+            const chatWindow = document.getElementById('chat-window');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${className}`;
+            msgDiv.innerText = text;
+            chatWindow.appendChild(msgDiv);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+            return msgDiv;
         }
     </script>
 </body>
