@@ -51,7 +51,7 @@
             box-shadow: 0 8px 25px rgba(168, 85, 247, 0.6);
         }
 
-        /* --- NEW: LOGIN INTERFACE STYLES --- */
+        /* LOGIN INTERFACE STYLES */
         #login-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #0f172a; display: flex; align-items: center; justify-content: center;
@@ -78,7 +78,7 @@
         }
         .login-input:focus { border-color: #a855f7; }
 
-        /* --- NEW: PREMIUM BUTTON --- */
+        /* PREMIUM BUTTON */
         .premium-btn {
             position: fixed; top: 25px; right: 25px;
             background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
@@ -89,14 +89,6 @@
             transition: 0.3s;
         }
         .premium-btn:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(245, 158, 11, 0.6); }
-
-        /* Existing utility styles */
-        .badge-upcoming { 
-            position: absolute; top: 25px; right: 25px;
-            padding: 6px 14px; border-radius: 20px; font-size: 0.75rem;
-            font-weight: bold; background: rgba(45, 212, 191, 0.1); 
-            color: #2dd4bf; border: 1px solid #2dd4bf4d; 
-        }
 
         .dedication-link {
             position: fixed; bottom: 15px; right: 15px;
@@ -152,10 +144,10 @@
         </div>
 
         <div class="card">
-            <span class="badge badge-upcoming">Upcoming</span>
-            <div class="card-icon" style="font-size: 2.5rem; margin-bottom: 20px;">📚</div>
-            <h3 style="font-size: 1.5rem; margin-bottom: 15px;">Flashcard Hero</h3>
-            <p style="color: rgba(255,255,255,0.5); line-height: 1.6;">Smart AI flashcards to memorize anything faster.</p>
+            <div class="card-icon" style="font-size: 2.5rem; margin-bottom: 20px;">📖</div>
+            <h3 style="font-size: 1.5rem; margin-bottom: 15px;">NCERT Master</h3>
+            <p style="color: rgba(255,255,255,0.5); line-height: 1.6;">Get perfect exam answers based on NCERT books.</p>
+            <a href="ncert.html" class="btn-open">Open Master</a>
         </div>
     </main>
 
@@ -195,8 +187,28 @@
         function saveLogin() {
             const name = document.getElementById('user-name-input').value;
             if (name.trim() !== "") {
-                localStorage.setItem('studyflow_user', name);
-                checkLogin();
+                // --- OWNER PASSWORD LOGIC ---
+                if (name.toLowerCase() === "advik") {
+                    const secret = prompt("Enter Master Access Key:");
+                    
+                    // REPLACE 'Jaiguruji14!' with your actual secret password!
+                    if (secret === "ENTER_YOUR_SECRET_HERE") { 
+                        localStorage.setItem('studyflow_user', "Advik (Owner)");
+                        localStorage.setItem('studyflow_premium', 'true');
+                        alert("Access Granted. Welcome Boss.");
+                        checkLogin();
+                    } else {
+                        alert("Incorrect Password! Logging in as Guest.");
+                        localStorage.setItem('studyflow_user', name);
+                        localStorage.setItem('studyflow_premium', 'false');
+                        checkLogin();
+                    }
+                } else {
+                    // Normal user
+                    localStorage.setItem('studyflow_user', name);
+                    localStorage.setItem('studyflow_premium', 'false');
+                    checkLogin();
+                }
             } else {
                 alert("Please enter a name to continue.");
             }
@@ -204,13 +216,20 @@
 
         function checkLogin() {
             const savedName = localStorage.getItem('studyflow_user');
+            const isPremium = localStorage.getItem('studyflow_premium') === 'true';
+
             if (savedName) {
                 document.getElementById('login-overlay').style.display = 'none';
-                document.getElementById('user-greeting').innerText = savedName;
+                
+                // Display Owner Badge if password was correct
+                if (isPremium && savedName.includes("(Owner)")) {
+                    document.getElementById('user-greeting').innerHTML = savedName + " <span style='font-size:0.75rem; background:#f59e0b; color:white; padding:3px 10px; border-radius:12px; margin-left:10px;'>OWNER</span>";
+                } else {
+                    document.getElementById('user-greeting').innerText = savedName;
+                }
             }
         }
 
-        // Run check on page load
         window.onload = checkLogin;
     </script>
 </body>
