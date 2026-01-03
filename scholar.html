@@ -55,9 +55,6 @@
     </div>
 
     <script>
-        // YOUR API KEY INTEGRATED
-        const API_KEY = "AIzaSyDrO1Qsar2A_p650LWBoqDQ8mWfMclEt1M"; 
-
         async function sendMessage() {
             const inputField = document.getElementById('user-input');
             const prompt = inputField.value.trim();
@@ -65,32 +62,27 @@
 
             addMessage(prompt, 'user-msg');
             inputField.value = "";
-
-            // Create placeholder for AI response
-            const loadingMsg = addMessage("Thinking...", 'ai-msg');
+            const loadingMsg = addMessage("Consulting the Oracle...", 'ai-msg');
 
             try {
-                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
+                // Secure call to your Vercel API endpoint
+                const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: `You are an elite academic tutor. Answer this question thoroughly but simply for a student: ${prompt}` }] }]
-                    })
+                    body: JSON.stringify({ prompt: `Academic Tutor Mode: ${prompt}` })
                 });
 
                 const data = await response.json();
                 const aiResponse = data.candidates[0].content.parts[0].text;
                 
-                // Display text and add the action buttons
                 loadingMsg.innerHTML = `
                     <div class="text-content">${aiResponse}</div>
                     <div class="action-btns">
                         <button class="action-btn" onclick="speakText(this.closest('.message').querySelector('.text-content').innerText)">🔊 Speak</button>
                         <button class="action-btn" onclick="copyText(this.closest('.message').querySelector('.text-content').innerText)">📋 Copy</button>
-                    </div>
-                `;
+                    </div>`;
             } catch (error) {
-                loadingMsg.innerText = "Connection Error. Please check your API key status.";
+                loadingMsg.innerText = "Error: Check Vercel Logs or Environment Variables.";
                 console.error(error);
             }
         }
