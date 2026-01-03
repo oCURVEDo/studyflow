@@ -90,6 +90,19 @@
         }
         .premium-btn:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(245, 158, 11, 0.6); }
 
+        .logout-btn {
+            background: none;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-left: 10px;
+            text-decoration: underline;
+            opacity: 0.6;
+            transition: 0.3s;
+        }
+        .logout-btn:hover { opacity: 1; }
+
         .dedication-link {
             position: fixed; bottom: 15px; right: 15px;
             font-size: 0.7rem; color: rgba(255, 255, 255, 0.2);
@@ -118,6 +131,7 @@
         <h1 style="font-size: 4rem; margin-bottom: 0; letter-spacing: -1px;">Study<span>Flow</span></h1>
         <p style="color: rgba(255,255,255,0.5); margin-top: 15px; font-size: 1.1rem;">
             Welcome back, <span id="user-greeting" style="color: #a855f7; font-weight: bold;">Student</span>!
+            <button class="logout-btn" onclick="logout()">(Logout)</button>
         </p>
     </header>
 
@@ -187,11 +201,10 @@
         function saveLogin() {
             const name = document.getElementById('user-name-input').value;
             if (name.trim() !== "") {
-                // --- OWNER PASSWORD LOGIC ---
                 if (name.toLowerCase() === "advik") {
                     const secret = prompt("Enter Master Access Key:");
                     
-                    // REPLACE 'Jaiguruji14!' with your actual secret password!
+                    // REPLACE 'ENTER_YOUR_SECRET_HERE' with your actual secret password!
                     if (secret === "ENTER_YOUR_SECRET_HERE") { 
                         localStorage.setItem('studyflow_user', "Advik (Owner)");
                         localStorage.setItem('studyflow_premium', 'true');
@@ -204,7 +217,6 @@
                         checkLogin();
                     }
                 } else {
-                    // Normal user
                     localStorage.setItem('studyflow_user', name);
                     localStorage.setItem('studyflow_premium', 'false');
                     checkLogin();
@@ -220,14 +232,18 @@
 
             if (savedName) {
                 document.getElementById('login-overlay').style.display = 'none';
-                
-                // Display Owner Badge if password was correct
                 if (isPremium && savedName.includes("(Owner)")) {
                     document.getElementById('user-greeting').innerHTML = savedName + " <span style='font-size:0.75rem; background:#f59e0b; color:white; padding:3px 10px; border-radius:12px; margin-left:10px;'>OWNER</span>";
                 } else {
                     document.getElementById('user-greeting').innerText = savedName;
                 }
             }
+        }
+
+        function logout() {
+            localStorage.removeItem('studyflow_user');
+            localStorage.removeItem('studyflow_premium');
+            window.location.reload();
         }
 
         window.onload = checkLogin;
