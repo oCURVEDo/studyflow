@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Scholar - StudyFlow AI</title>
+    <style>
+        body { background-color: #0f172a; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        
+        .scholar-container {
+            width: 90%;
+            max-width: 800px;
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            border-radius: 30px;
+            padding: 40px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { color: #a855f7; margin: 0; font-size: 2.2rem; letter-spacing: -1px; }
+        .header p { opacity: 0.6; font-size: 0.9rem; }
+
+        .input-area { display: flex; flex-direction: column; gap: 20px; }
+
+        textarea {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            color: white;
+            font-size: 1rem;
+            resize: none;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        textarea:focus { border-color: #a855f7; box-shadow: 0 0 15px rgba(168, 85, 247, 0.2); }
+
+        .controls { display: flex; gap: 15px; }
+
+        select {
+            background: #1e293b;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 10px;
+            flex: 1;
+            outline: none;
+        }
+
+        .btn-solve {
+            background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-solve:hover { transform: scale(1.05); box-shadow: 0 5px 15px rgba(168, 85, 247, 0.4); }
+
+        /* AI Result Area */
+        #result-display {
+            margin-top: 30px;
+            padding: 25px;
+            background: rgba(168, 85, 247, 0.05);
+            border-radius: 20px;
+            border: 1px dashed rgba(168, 85, 247, 0.3);
+            display: none;
+            line-height: 1.6;
+        }
+
+        .typing { overflow: hidden; border-right: .15em solid #a855f7; white-space: pre-wrap; animation: blink-caret .75s step-end infinite; }
+        @keyframes blink-caret { from, to { border-color: transparent } 50% { border-color: #a855f7; } }
+
+        .back-link { position: absolute; top: 20px; left: 20px; color: rgba(255,255,255,0.4); text-decoration: none; font-size: 0.8rem; }
+        .back-link:hover { color: #a855f7; }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" class="back-link">← BACK TO DASHBOARD</a>
+
+    <div class="scholar-container">
+        <div class="header">
+            <h1>Smart Scholar AI</h1>
+            <p>The Academic Oracle | Universal Board & Textbook Support</p>
+        </div>
+
+        <div class="input-area">
+            <textarea id="user-question" rows="5" placeholder="Enter any question from any textbook (Science, History, Literature, etc.)..."></textarea>
+            
+            <div class="controls">
+                <select id="academic-level">
+                    <option value="Middle School">Middle School</option>
+                    <option value="High School" selected>High School (CBSE/ICSE/GCSE)</option>
+                    <option value="College">College / University</option>
+                </select>
+                <button class="btn-solve" onclick="askScholar()">Solve with AI</button>
+            </div>
+        </div>
+
+        <div id="result-display">
+            <div id="ai-text" class="typing"></div>
+        </div>
+    </div>
+
+    <script>
+        function askScholar() {
+            const question = document.getElementById('user-question').value;
+            const level = document.getElementById('academic-level').value;
+            const display = document.getElementById('result-display');
+            const textContainer = document.getElementById('ai-text');
+
+            if (question.trim() === "") {
+                alert("Please enter a question first!");
+                return;
+            }
+
+            display.style.display = "block";
+            textContainer.innerHTML = "Consulting the Academic Oracle...";
+
+            // Simulation of AI thinking
+            setTimeout(() => {
+                const response = `[ACADEMIC LEVEL: ${level}]\n\n` + 
+                                 `CORE CONCEPT: Your question involves a fundamental principle of this subject.\n\n` +
+                                 `EXPERT ANSWER:\n1. Based on global textbook standards, the most accurate explanation is that this process occurs when specific variables align.\n` +
+                                 `2. KEYWORDS TO INCLUDE: Critical Thinking, Analysis, and Systematic Observation.\n\n` +
+                                 `STUDY TIP: For full marks in your board exams, always define the terms first before explaining the mechanism.`;
+                
+                typeWriter(response);
+            }, 1500);
+        }
+
+        let i = 0;
+        function typeWriter(txt) {
+            if (i === 0) document.getElementById('ai-text').innerHTML = "";
+            if (i < txt.length) {
+                document.getElementById('ai-text').innerHTML += txt.charAt(i);
+                i++;
+                setTimeout(() => typeWriter(txt), 20);
+            } else {
+                i = 0; // Reset for next time
+            }
+        }
+    </script>
+</body>
+</html>
