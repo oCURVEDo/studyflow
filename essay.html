@@ -26,6 +26,21 @@
             const topicInput = document.getElementById('topic').value;
             const outputDiv = document.getElementById('output');
 
+            // 1. CHECK LIMITS
+            let today = new Date().toLocaleDateString();
+            let usage = JSON.parse(localStorage.getItem('essayUsage')) || { date: today, count: 0 };
+
+            // Reset count if it's a new day
+            if (usage.date !== today) {
+                usage = { date: today, count: 0 };
+            }
+
+            // Check if limit reached
+            if (usage.count >= 2) {
+                outputDiv.innerHTML = `<b style="color: #ef4444;">Daily Limit Reached (2/2).</b><br>Upgrade to Premium for infinite essays!`;
+                return;
+            }
+
             if (!topicInput) { alert("Enter a topic!"); return; }
             outputDiv.innerText = "Generating safely via Vercel...";
 
@@ -41,6 +56,11 @@
                 
                 // The data comes back from your generate.js file
                 outputDiv.innerText = data.choices[0].message.content;
+
+                // 2. INCREASE COUNT AFTER SUCCESS
+                usage.count++;
+                localStorage.setItem('essayUsage', JSON.stringify(usage));
+
             } catch (e) {
                 outputDiv.innerText = "Error: This will only work once hosted on Vercel!";
             }
