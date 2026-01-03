@@ -6,25 +6,30 @@
     <title>Smart Scholar AI - StudyFlow</title>
     <style>
         body { background-color: #0f172a; color: white; font-family: 'Inter', sans-serif; margin: 0; display: flex; flex-direction: column; height: 100vh; }
-        
-        /* Chat Container */
         .chat-wrapper { flex: 1; display: flex; flex-direction: column; max-width: 900px; margin: 0 auto; width: 100%; padding: 20px; box-sizing: border-box; }
-        
         #chat-window { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; scrollbar-width: thin; }
         
         /* Message Bubbles */
-        .message { max-width: 80%; padding: 15px 20px; border-radius: 20px; line-height: 1.5; font-size: 1rem; }
-        .user-msg { align-self: flex-end; background: #a855f7; color: white; border-bottom-right-radius: 5px; }
+        .message { max-width: 80%; padding: 15px 20px; border-radius: 20px; line-height: 1.6; font-size: 1rem; position: relative; white-space: pre-wrap; }
+        .user-msg { align-self: flex-end; background: #a855f7; color: white; border-bottom-right-radius: 5px; box-shadow: 0 4px 15px rgba(168, 85, 247, 0.2); }
         .ai-msg { align-self: flex-start; background: #1e293b; border: 1px solid rgba(168, 85, 247, 0.3); border-bottom-left-radius: 5px; }
 
-        /* Input Area */
-        .input-box { background: #1e293b; padding: 20px; border-radius: 25px; display: flex; gap: 10px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; }
-        input { flex: 1; background: transparent; border: none; color: white; outline: none; font-size: 1rem; }
-        
-        .send-btn { background: #a855f7; border: none; color: white; padding: 10px 20px; border-radius: 15px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .send-btn:hover { transform: scale(1.05); background: #7c3aed; }
+        /* Action Buttons (Voice & Copy) */
+        .action-btns { display: flex; gap: 10px; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; }
+        .action-btn { 
+            background: none; border: none; color: #a855f7; cursor: pointer; 
+            font-size: 0.85rem; font-weight: bold; opacity: 0.7; transition: 0.3s;
+            display: flex; align-items: center; gap: 5px;
+        }
+        .action-btn:hover { opacity: 1; transform: translateY(-2px); }
 
-        .back-link { padding: 15px; color: rgba(255,255,255,0.4); text-decoration: none; font-size: 0.8rem; }
+        /* Input Area */
+        .input-box { background: #1e293b; padding: 15px 25px; border-radius: 30px; display: flex; gap: 10px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        input { flex: 1; background: transparent; border: none; color: white; outline: none; font-size: 1rem; }
+        .send-btn { background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%); border: none; color: white; padding: 10px 25px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+        
+        .back-link { padding: 15px; color: rgba(255,255,255,0.4); text-decoration: none; font-size: 0.8rem; transition: 0.3s; }
+        .back-link:hover { color: #a855f7; }
     </style>
 </head>
 <body>
@@ -32,36 +37,36 @@
     <a href="index.html" class="back-link">← DASHBOARD</a>
 
     <div class="chat-wrapper">
-        <header style="text-align: center; margin-bottom: 10px;">
-            <h2 style="color: #a855f7; margin: 0;">Smart Scholar AI</h2>
-            <p style="opacity: 0.5; font-size: 0.8rem;">Universal Academic Assistant</p>
+        <header style="text-align: center; margin-bottom: 20px;">
+            <h2 style="color: #a855f7; margin: 0; letter-spacing: 1px;">Smart Scholar AI</h2>
+            <p style="opacity: 0.5; font-size: 0.8rem; text-transform: uppercase;">Universal Academic Brain</p>
         </header>
 
         <div id="chat-window">
-            <div class="message ai-msg">Hello! I am your Smart Scholar. Ask me anything from any textbook or subject. How can I help you today?</div>
+            <div class="message ai-msg">
+                Greetings! I am the Smart Scholar. Paste any textbook question or topic here, and I will provide a detailed academic explanation.
+            </div>
         </div>
 
         <div class="input-box">
-            <input type="text" id="user-input" placeholder="Type your question here (e.g. Explain Photosynthesis)..." onkeypress="if(event.key === 'Enter') sendMessage()">
-            <button class="send-btn" onclick="sendMessage()">ASK AI</button>
+            <input type="text" id="user-input" placeholder="Ask anything (e.g., Explain Newton's Third Law)..." onkeypress="if(event.key === 'Enter') sendMessage()">
+            <button class="send-btn" onclick="sendMessage()">SOLVE</button>
         </div>
     </div>
 
     <script>
-        const API_KEY = "AIzaSyDrO1Qsar2A_p650LWBoqDQ8mWfMclEt1M"; // PASTE YOUR KEY HERE
+        // YOUR API KEY INTEGRATED
+        const API_KEY = "AIzaSyDrO1Qsar2A_p650LWBoqDQ8mWfMclEt1M"; 
 
         async function sendMessage() {
             const inputField = document.getElementById('user-input');
-            const chatWindow = document.getElementById('chat-window');
             const prompt = inputField.value.trim();
-
             if (!prompt) return;
 
-            // 1. Add User Message
             addMessage(prompt, 'user-msg');
             inputField.value = "";
 
-            // 2. Add Loading State
+            // Create placeholder for AI response
             const loadingMsg = addMessage("Thinking...", 'ai-msg');
 
             try {
@@ -69,20 +74,25 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: `You are an academic expert. Answer this question clearly for a student: ${prompt}` }] }]
+                        contents: [{ parts: [{ text: `You are an elite academic tutor. Answer this question thoroughly but simply for a student: ${prompt}` }] }]
                     })
                 });
 
                 const data = await response.json();
                 const aiResponse = data.candidates[0].content.parts[0].text;
                 
-                // 3. Update Loading Message with real answer
-                loadingMsg.innerText = aiResponse;
+                // Display text and add the action buttons
+                loadingMsg.innerHTML = `
+                    <div class="text-content">${aiResponse}</div>
+                    <div class="action-btns">
+                        <button class="action-btn" onclick="speakText(this.closest('.message').querySelector('.text-content').innerText)">🔊 Speak</button>
+                        <button class="action-btn" onclick="copyText(this.closest('.message').querySelector('.text-content').innerText)">📋 Copy</button>
+                    </div>
+                `;
             } catch (error) {
-                loadingMsg.innerText = "Error: Could not connect to AI. Check your API key!";
+                loadingMsg.innerText = "Connection Error. Please check your API key status.";
+                console.error(error);
             }
-            
-            chatWindow.scrollTop = chatWindow.scrollHeight;
         }
 
         function addMessage(text, className) {
@@ -93,6 +103,18 @@
             chatWindow.appendChild(msgDiv);
             chatWindow.scrollTop = chatWindow.scrollHeight;
             return msgDiv;
+        }
+
+        function speakText(text) {
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 0.9; 
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function copyText(text) {
+            navigator.clipboard.writeText(text);
+            alert("Answer copied to clipboard!");
         }
     </script>
 </body>
