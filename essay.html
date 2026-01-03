@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Essay Outline</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body { font-family: sans-serif; background-color: #0f172a; color: white; padding: 40px; text-align: center; }
+        textarea { width: 80%; max-width: 600px; height: 100px; padding: 15px; border-radius: 12px; border: 1px solid #a855f7; background: #1e293b; color: white; }
+        #output { margin-top: 20px; text-align: left; max-width: 600px; margin-left: auto; margin-right: auto; white-space: pre-wrap; background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; line-height: 1.6; }
+        .btn-gen { background: #a855f7; color: white; padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        .back-link { color: #94a3b8; text-decoration: none; font-size: 0.9rem; display: block; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" class="back-link">← Back to Dashboard</a>
+    <h1>AI Essay Outline</h1>
+    <textarea id="topic" placeholder="Enter essay topic..."></textarea><br>
+    <button class="btn-gen" onclick="getOutline()">Generate Outline</button>
+    <div id="output">Result will appear here...</div>
+
+    <script>
+        async function getOutline() {
+            const topicInput = document.getElementById('topic').value;
+            const outputDiv = document.getElementById('output');
+
+            if (!topicInput) { alert("Enter a topic!"); return; }
+            outputDiv.innerText = "Generating safely via Vercel...";
+
+            try {
+                // This line tells the browser to talk to your backend folder
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ topic: topicInput })
+                });
+                
+                const data = await response.json();
+                
+                // The data comes back from your generate.js file
+                outputDiv.innerText = data.choices[0].message.content;
+            } catch (e) {
+                outputDiv.innerText = "Error: This will only work once hosted on Vercel!";
+            }
+        }
+    </script>
+
+    <footer style="margin-top: 100px; padding: 40px; text-align: center; border-top: 1px solid rgba(255,255,255,0.05);">
+        <p style="color: #a855f7; font-weight: bold; letter-spacing: 1px;">&copy; 2026 ADVIK KUMAR | PROPRIETARY SOFTWARE</p>
+    </footer>
+
+</body>
+</html>

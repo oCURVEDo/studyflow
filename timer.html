@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zen Timer - StudyFlow</title>
+    <style>
+        :root { --bg: #0f172a; --primary: #a855f7; --accent: #2dd4bf; --card: rgba(255, 255, 255, 0.05); }
+        body { background-color: var(--bg); color: white; font-family: 'Inter', sans-serif; display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; padding: 20px; text-align: center; }
+        
+        .back-btn { position: absolute; top: 20px; left: 20px; color: var(--primary); text-decoration: none; font-weight: bold; }
+        .real-time { font-size: 1.1rem; color: var(--accent); margin-top: 10px; font-weight: bold; letter-spacing: 1px; }
+        .timer-display { font-size: 7rem; font-weight: 800; margin: 10px 0; text-shadow: 0 0 40px rgba(168, 85, 247, 0.3); }
+
+        /* Multi-Unit Settings */
+        .settings-container { background: var(--card); padding: 20px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; }
+        .unit-grid { display: flex; gap: 15px; justify-content: center; margin-top: 10px; }
+        .unit-group input { width: 55px; background: rgba(0,0,0,0.4); border: 1px solid var(--primary); color: white; padding: 8px; border-radius: 8px; text-align: center; }
+        .unit-group label { display: block; font-size: 0.6rem; color: #94a3b8; margin-bottom: 3px; }
+
+        .controls button { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.1); color: white; padding: 12px 20px; border-radius: 12px; cursor: pointer; font-weight: bold; margin: 5px; transition: 0.3s; }
+        .controls button:hover { background: var(--primary); }
+        #main-btn { background: var(--primary); padding: 12px 40px; box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3); }
+        #stop-alarm-btn { background: #ef4444; display: none; border: none; animation: pulse 1s infinite; }
+
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+        .music-hub { margin-top: 30px; width: 100%; max-width: 400px; background: var(--card); padding: 20px; border-radius: 20px; border: 1px solid var(--accent); }
+        .music-hub select { width: 100%; background: #1e293b; color: white; padding: 10px; border-radius: 8px; border: 1px solid var(--primary); margin-bottom: 10px; }
+        
+        #custom-entry { display: none; margin-top: 10px; }
+        #custom-entry input { width: 90%; padding: 10px; margin-bottom: 8px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; }
+
+        footer { margin-top: auto; padding: 20px; font-size: 0.8rem; color: #64748b; }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" class="back-btn">← Back</a>
+    <div class="real-time" id="clock">00:00:00</div>
+    <div class="timer-display" id="time-display">00:25:00</div>
+
+    <div class="settings-container">
+        <span style="font-size: 0.8rem; font-weight: bold; color: var(--primary);">SET CUSTOM DURATION</span>
+        <div class="unit-grid">
+            <div class="unit-group"><label>HRS</label><input type="number" id="h-in" value="0" min="0"></div>
+            <div class="unit-group"><label>MINS</label><input type="number" id="m-in" value="25" min="0"></div>
+            <div class="unit-group"><label>SECS</label><input type="number" id="s-in" value="0" min="0"></div>
+        </div>
+        <button onclick="applyCustomTime()" style="margin-top:15px; background:var(--accent); color:#0f172a; border:none; padding:8px 20px; border-radius:8px; font-weight:bold; cursor:pointer;">Apply Time</button>
+    </div>
+
+    <div class="controls">
+        <button onclick="toggleTimer()" id="main-btn">Start Session</button>
+        <button onclick="resetTimer()">Reset</button>
+        <button id="stop-alarm-btn" onclick="stopAlarm()">STOP ALARM 🔕</button>
+    </div>
+
+    <div class="music-hub">
+        <select id="music-select">
+            <option value="https://www.youtube.com/watch?v=n61ULEU7CO0">Lofi Girl</option>
+            <option value="https://www.youtube.com/watch?v=MYPVQccHhAQ">Coffee Shop</option>
+        </select>
+        <button onclick="playMusic()" style="width:100%; background:var(--primary); color:white; padding:10px; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">Play Music 🎵</button>
+        <button onclick="document.getElementById('custom-entry').style.display='block'" style="background:none; border:none; color:var(--accent); cursor:pointer; margin-top:10px; font-size:0.7rem; text-decoration:underline;">+ Add Custom</button>
+        
+        <div id="custom-entry">
+            <input type="text" id="custom-name" placeholder="Name">
+            <input type="text" id="custom-url" placeholder="URL">
+            <button onclick="saveMusic()" style="width:100%; background:var(--accent); color:#0f172a; border:none; padding:8px; border-radius:8px; font-weight:bold;">Save</button>
+        </div>
+    </div>
+
+    <audio id="alarm-sound" loop src="https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg"></audio>
+
+    <footer>
+        <p>&copy; 2026 <strong>Advik Kumar</strong>. All Rights Reserved.</p>
+        <p style="font-size: 0.7rem; opacity: 0.6;">Unauthorized copying or distribution of this code is strictly copyrighted.</p>
+    </footer>
+
+    <script>
+        let totalSeconds = 1500;
+        let timer = null;
+        let isRunning = false;
+        let songs = JSON.parse(localStorage.getItem('studyflow_songs')) || [];
+
+        function updateClock() { document.getElementById('clock').innerText = new Date().toLocaleTimeString(); }
+        setInterval(updateClock, 1000);
+
+        function updateDisplay() {
+            const h = Math.floor(totalSeconds / 3600);
+            const m = Math.floor((totalSeconds % 3600) / 60);
+            const s = totalSeconds % 60;
+            document.getElementById('time-display').innerText = 
+                `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+        }
+
+        function applyCustomTime() {
+            const h = parseInt(document.getElementById('h-in').value) || 0;
+            const m = parseInt(document.getElementById('m-in').value) || 0;
+            const s = parseInt(document.getElementById('s-in').value) || 0;
+            totalSeconds = (h * 3600) + (m * 60) + s;
+            updateDisplay();
+        }
+
+        function toggleTimer() {
+            if (isRunning) {
+                clearInterval(timer);
+                document.getElementById('main-btn').innerText = "Resume";
+            } else {
+                document.getElementById('main-btn').innerText = "Pause";
+                timer = setInterval(() => {
+                    if(totalSeconds > 0) {
+                        totalSeconds--;
+                        updateDisplay();
+                    } else {
+                        clearInterval(timer);
+                        triggerAlarm();
+                    }
+                }, 1000);
+            }
+            isRunning = !isRunning;
+        }
+
+        function triggerAlarm() {
+            document.getElementById('alarm-sound').play();
+            document.getElementById('stop-alarm-btn').style.display = 'inline-block';
+            document.getElementById('main-btn').style.display = 'none';
+        }
+
+        function stopAlarm() {
+            const audio = document.getElementById('alarm-sound');
+            audio.pause();
+            audio.currentTime = 0;
+            document.getElementById('stop-alarm-btn').style.display = 'none';
+            document.getElementById('main-btn').style.display = 'inline-block';
+            document.getElementById('main-btn').innerText = "Start Session";
+            isRunning = false;
+        }
+
+        function resetTimer() {
+            clearInterval(timer);
+            isRunning = false;
+            stopAlarm();
+            applyCustomTime();
+            document.getElementById('main-btn').innerText = "Start Session";
+        }
+
+        function saveMusic() {
+            const name = document.getElementById('custom-name').value;
+            const url = document.getElementById('custom-url').value;
+            if(name && url) {
+                songs.push({name, url});
+                localStorage.setItem('studyflow_songs', JSON.stringify(songs));
+                renderSongs();
+                document.getElementById('custom-entry').style.display = 'none';
+            }
+        }
+
+        function renderSongs() {
+            const select = document.getElementById('music-select');
+            // Keep first 2 defaults
+            select.length = 2; 
+            songs.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.url;
+                opt.text = s.name;
+                select.add(opt);
+            });
+        }
+
+        function playMusic() { window.open(document.getElementById('music-select').value, 'ZenPlayer', 'width=400,height=300'); }
+
+        renderSongs();
+        updateDisplay();
+    </script>
+</body>
+</html>

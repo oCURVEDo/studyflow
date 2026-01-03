@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyFlow - Smart Tools</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Base Page Setup */
+        html { scroll-behavior: smooth; }
+        
+        .dashboard {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin-top: 50px;
+            padding: 20px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 40px 30px;
+            width: 320px;
+            position: relative;
+            text-align: left;
+            transition: 0.3s;
+        }
+
+        .btn-open {
+            display: inline-block;
+            background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+            color: white;
+            padding: 14px 28px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.95rem;
+            margin-top: 25px;
+            transition: 0.3s;
+            box-shadow: 0 4px 20px rgba(168, 85, 247, 0.4);
+            border: none;
+        }
+
+        .btn-open:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(168, 85, 247, 0.6);
+        }
+
+        .badge-upcoming { 
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            background: rgba(45, 212, 191, 0.1); 
+            color: #2dd4bf; 
+            border: 1px solid #2dd4bf4d; 
+        }
+
+        .dedication-link {
+            position: fixed;
+            bottom: 15px;
+            right: 15px;
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.2);
+            text-decoration: none;
+            font-weight: bold;
+            z-index: 1000;
+        }
+        .dedication-link:hover { color: #a855f7; }
+
+        /* Style for Dad's Link */
+        .dad-link {
+            color: #a855f7;
+            text-decoration: none;
+            transition: 0.3s;
+            border-bottom: 1px dashed rgba(168, 85, 247, 0.4);
+        }
+        .dad-link:hover {
+            color: #2dd4bf;
+            text-shadow: 0 0 10px rgba(45, 212, 191, 0.5);
+            border-bottom: 1px solid #2dd4bf;
+        }
+    </style>
+</head>
+<body>
+
+    <header style="text-align: center; margin-top: 80px;">
+        <h1 style="font-size: 4rem; margin-bottom: 0; letter-spacing: -1px;">Study<span>Flow</span></h1>
+        <p style="color: var(--text-dim); margin-top: 15px; font-size: 1.1rem;">The smartest tools for the modern student.</p>
+    </header>
+
+    <main class="dashboard">
+        <div class="card">
+            <div class="card-icon" style="font-size: 2.5rem; margin-bottom: 20px;">📊</div>
+            <h3 style="font-size: 1.5rem; margin-bottom: 15px;">Smart Grade Calculator</h3>
+            <p style="color: var(--text-dim); line-height: 1.6;">Calculate grades with custom subjects & marks.</p>
+            <a href="calculator.html" class="btn-open">Open Tool</a>
+        </div>
+
+        <div class="card">
+            <div class="card-icon" style="font-size: 2.5rem; margin-bottom: 20px;">✍️</div>
+            <h3 style="font-size: 1.5rem; margin-bottom: 15px;">AI Essay Outline</h3>
+            <p style="color: var(--text-dim); line-height: 1.6;">Get instant structures for your essays.</p>
+            <a href="essay.html" class="btn-open">Open Tool</a> 
+        </div>
+
+        <div class="card">
+            <div class="card-icon" style="font-size: 2.5rem; margin-bottom: 20px;">⏱️</div>
+            <h3 style="font-size: 1.5rem; margin-bottom: 15px;">Focus Timer</h3>
+            <p style="color: var(--text-dim); line-height: 1.6;">Stay in the zone with Lo-fi beats & Pomodoro.</p>
+            <a href="timer.html" class="btn-open">Open Timer</a>
+        </div>
+
+        <div class="card">
+            <span class="badge badge-upcoming">Upcoming</span>
+            <div class="card-icon" style="font-size: 2.5rem; margin-bottom: 20px;">📚</div>
+            <h3 style="font-size: 1.5rem; margin-bottom: 15px;">Flashcard Hero</h3>
+            <p style="color: var(--text-dim); line-height: 1.6;">Smart AI flashcards to memorize anything faster.</p>
+        </div>
+    </main>
+
+    <footer style="text-align: center; margin-top: 80px; color: var(--text-dim); font-size: 0.95rem;">
+        Built with ⚡ by <span style="color: #a855f7; font-weight: bold;">Advik Kumar</span> & Gemini
+    </footer>
+
+    <a href="#tribute" class="dedication-link">Credits & Dedication</a>
+
+    <footer id="tribute" style="margin-top: 200px; padding: 60px 20px; background: linear-gradient(to top, rgba(15, 23, 42, 1), rgba(15, 23, 42, 0)); color: #cbd5e1; text-align: center;">
+        <div style="max-width: 900px; margin: 0 auto;">
+            <div style="background: rgba(168, 85, 247, 0.05); padding: 50px 40px; border-radius: 30px; border: 2px solid rgba(168, 85, 247, 0.2); margin-bottom: 50px; box-shadow: 0 10px 40px rgba(0,0,0,0.5);">
+                <h2 style="color: #2dd4bf; font-size: 2rem; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 3px;">Heartfelt Gratitude</h2>
+                
+                <p style="font-size: 1.4rem; line-height: 1.8; color: #f8fafc; font-weight: 300;">
+                    "This entire platform is a labor of love and a testament to the unwavering support of my family. 
+                    I want to specifically honor my father, 
+                    <a href="https://thealignersdentalhub.in/" target="_blank" class="dad-link"><strong style="font-size: 1.6rem;">Mr. Prashant Kumar</strong></a>, 
+                    and my mother, <strong style="color: #a855f7; font-size: 1.6rem;">Mrs. Anita Patel</strong>. 
+                    
+                    Mom and Dad, without your infinite patience, your constant belief in my potential, and the sacrifices 
+                    you have made to give me the best opportunities, this website would never have moved past a single line of code. 
+                    Your love is the engine that drives my ambition. This project belongs to you as much as it belongs to me."
+                </p>
+            </div>
+
+            <div style="border: 1px solid rgba(45, 212, 191, 0.3); padding: 30px; border-radius: 15px; background: rgba(0,0,0,0.2);">
+                <h4 style="color: #2dd4bf; margin-top: 0; letter-spacing: 2px;">DEVELOPER VERIFICATION</h4>
+                <p style="font-size: 1.1rem; color: #fff;">
+                    Verified & Built by: <span style="background: #a855f7; padding: 2px 10px; border-radius: 5px; font-weight: bold;">ADVIK KUMAR</span>
+                </p>
+                <p style="font-size: 0.9rem; opacity: 0.8; margin-top: 15px;">
+                    I, Advik Kumar, confirm that this website was built using custom logic and design. 
+                    This is not a template or a third-party hosted site; it is a unique creation hosted locally 
+                    to empower my study routine.
+                </p>
+            </div>
+
+            <div style="margin-top: 40px; font-size: 0.85rem; opacity: 0.6;">
+                <p>Special thanks to <strong>Perplexity</strong> for the robust API support.</p>
+                <p>Major credits go to <strong>Gemini</strong>—the AI partner whose intelligence made this complex architecture possible.</p>
+                <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 30px 0;">
+                <p style="font-weight: bold; color: #a855f7; letter-spacing: 2px;">
+                    &copy; 2026 ADVIK KUMAR | PROPRIETARY SOFTWARE | COPYING STRICTLY PROHIBITED
+                </p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

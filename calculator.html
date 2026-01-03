@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Grade Calculator - StudyFlow</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        .back-link { color: var(--text-dim); text-decoration: none; font-size: 0.9rem; display: inline-block; margin-bottom: 20px; transition: 0.3s; }
+        .back-link:hover { color: var(--primary-neon); transform: translateX(-5px); }
+        
+        /* Student Name Input Box */
+        .student-box {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px dashed rgba(168, 85, 247, 0.4);
+        }
+        .student-box label { color: var(--primary-neon); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 5px; }
+        .student-box input { width: 100%; background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.2); color: white; padding: 5px 0; font-size: 1rem; outline: none; }
+        .student-box input:focus { border-bottom: 1px solid var(--secondary-neon); }
+
+        #display-student-name { display: none; color: var(--secondary-neon); font-size: 1.2rem; margin-bottom: 10px; font-weight: bold; }
+
+        .settings-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .settings-row { background: rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 12px; display: flex; flex-direction: column; gap: 8px; border: 1px solid rgba(168, 85, 247, 0.2); }
+        .settings-row label { color: var(--secondary-neon); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; }
+        .settings-row input { width: 100%; text-align: center; border-color: var(--primary-neon); box-sizing: border-box; }
+        
+        .subject-row { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; }
+        .sub-name { flex: 3; }
+        .sub-marks { flex: 1; text-align: center; }
+        
+        .btn-delete { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid #ef4444; border-radius: 8px; width: 40px; height: 42px; cursor: pointer; }
+        
+        .progress-container { width: 100%; height: 14px; background: rgba(255,255,255,0.1); border-radius: 20px; margin-bottom: 15px; overflow: hidden; }
+        .progress-bar { width: 0%; height: 100%; transition: width 1s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.5s ease; }
+        
+        .actions { display: flex; gap: 10px; margin-top: 20px; }
+        .btn-outline { background: transparent; border: 1px solid var(--primary-neon); color: var(--primary-neon); padding: 12px; border-radius: 12px; cursor: pointer; width: 100%; font-weight: 600; }
+        .btn-solid { background: var(--secondary-neon); color: #000; border: none; padding: 12px; border-radius: 12px; cursor: pointer; width: 100%; font-weight: 800; }
+        
+        .btn-download { background: #fff; color: #000; border: none; padding: 10px 20px; border-radius: 8px; margin-top: 20px; cursor: pointer; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; }
+
+        .result-box { margin-top: 30px; padding: 30px; background: rgba(255, 255, 255, 0.03); border-radius: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.1); display: none; }
+        .affirmation { font-style: italic; color: #fff; margin-top: 15px; font-size: 1.1rem; }
+        
+        #pdf-footer { display: none; justify-content: space-between; margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px; }
+
+        /* Style for the new Footer */
+        .page-footer {
+            margin-top: 80px;
+            padding: 40px 20px;
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        .page-footer p {
+            font-weight: bold;
+            color: #a855f7;
+            letter-spacing: 2px;
+            font-size: 0.85rem;
+            margin: 0;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calc-container" id="report-content" style="padding: 20px;">
+        <a href="index.html" class="back-link" data-html2canvas-ignore="true">← Back to Dashboard</a>
+        <h2 style="margin-top: 0; font-size: 2rem;">📊 Grade Report</h2>
+        
+        <div class="student-box" data-html2canvas-ignore="true">
+            <label>Student Name</label>
+            <input type="text" id="student-name-input" placeholder="Enter name for PDF (Optional)" oninput="saveAllData()">
+        </div>
+
+        <div class="settings-container">
+            <div class="settings-row">
+                <label>Max Marks</label>
+                <input type="number" id="global-max" value="100" oninput="saveAllData()">
+            </div>
+            <div class="settings-row">
+                <label>Pass Marks (Opt)</label>
+                <input type="number" id="pass-mark" placeholder="Default: 50%" oninput="saveAllData()">
+            </div>
+        </div>
+        
+        <div id="subject-list"></div>
+
+        <div class="actions" data-html2canvas-ignore="true">
+            <button class="btn-outline" onclick="addSubject()">+ Add Subject</button>
+            <button class="btn-solid" onclick="calculateFinal()">Calculate Now 🚀</button>
+        </div>
+
+        <div id="final-result" class="result-box">
+            <div id="display-student-name"></div>
+            <div class="progress-container">
+                <div id="progress-bar" class="progress-bar"></div>
+            </div>
+            <h3 id="percentage" style="font-size: 3rem; margin: 0;">0%</h3>
+            <p id="summary" style="color: var(--text-dim);"></p>
+            <div id="affirmation-text" class="affirmation"></div>
+            
+            <button class="btn-download" onclick="downloadPDF()" data-html2canvas-ignore="true">
+                📥 Download Report (PDF)
+            </button>
+        </div>
+
+        <div id="pdf-footer">
+            <span style="color: #a855f7; font-weight: bold; font-size: 12px;">© StudyFlow Official Report</span>
+            <span style="color: rgba(255,255,255,0.3); font-size: 8px;">Dev: Advik</span>
+        </div>
+    </div>
+
+    <footer class="page-footer" data-html2canvas-ignore="true">
+        <p>&copy; 2026 ADVIK KUMAR | PROPRIETARY SOFTWARE | ALL RIGHTS RESERVED</p>
+    </footer>
+
+    <audio id="yay-sound" src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3" preload="auto"></audio>
+
+    <script>
+        const affirmations = {
+            fail: ["The comeback is always stronger than the setback! 💪", "Mistakes are proof that you are trying. ✨", "Don't stop now, your breakthrough is coming! 📈"],
+            pass: ["Good job, but I know you have another gear! ⚙️", "You passed! Now let's aim for the stars! 🌟", "Solid effort. A little more focus and you'll be unstoppable!"],
+            elite: ["ABSOLUTELY LEGENDARY! 🏆", "You're in the top tier! Pure brilliance! 🔥", "Phenomenal work! Keep that momentum going! ⚡", "Masterclass performance! 🎯"]
+        };
+
+        window.onload = function() { loadSavedData(); };
+
+        function addSubject() {
+            let container = document.getElementById('subject-list');
+            let newRow = document.createElement('div');
+            newRow.className = 'subject-row';
+            newRow.innerHTML = `
+                <input type="text" placeholder="Subject Name" class="sub-name" oninput="saveAllData()">
+                <input type="number" placeholder="Marks" class="sub-marks" oninput="saveAllData()">
+                <button class="btn-delete" onclick="removeRow(this)" data-html2canvas-ignore="true">✕</button>
+            `;
+            container.appendChild(newRow);
+            saveAllData();
+        }
+
+        function removeRow(button) {
+            button.parentElement.remove();
+            saveAllData();
+            document.getElementById('final-result').style.display = "none";
+        }
+
+        function saveAllData() {
+            let rows = document.querySelectorAll('.subject-row');
+            let dataToSave = [];
+            rows.forEach(row => {
+                dataToSave.push({ name: row.querySelector('.sub-name').value, marks: row.querySelector('.sub-marks').value });
+            });
+            localStorage.setItem('studyFlow_marks', JSON.stringify(dataToSave));
+            localStorage.setItem('studyFlow_max', document.getElementById('global-max').value);
+            localStorage.setItem('studyFlow_pass', document.getElementById('pass-mark').value);
+            localStorage.setItem('studyFlow_student', document.getElementById('student-name-input').value);
+        }
+
+        function loadSavedData() {
+            let savedMarks = JSON.parse(localStorage.getItem('studyFlow_marks'));
+            document.getElementById('global-max').value = localStorage.getItem('studyFlow_max') || 100;
+            document.getElementById('pass-mark').value = localStorage.getItem('studyFlow_pass') || "";
+            document.getElementById('student-name-input').value = localStorage.getItem('studyFlow_student') || "";
+
+            let container = document.getElementById('subject-list');
+            container.innerHTML = ''; 
+            if (savedMarks && savedMarks.length > 0) {
+                savedMarks.forEach(item => {
+                    let newRow = document.createElement('div');
+                    newRow.className = 'subject-row';
+                    newRow.innerHTML = `
+                        <input type="text" value="${item.name}" class="sub-name" oninput="saveAllData()">
+                        <input type="number" value="${item.marks}" class="sub-marks" oninput="saveAllData()">
+                        <button class="btn-delete" onclick="removeRow(this)" data-html2canvas-ignore="true">✕</button>
+                    `;
+                    container.appendChild(newRow);
+                });
+            } else { for(let i=0; i<3; i++) addSubject(); }
+        }
+
+        function calculateFinal() {
+            let marksArr = document.getElementsByClassName('sub-marks');
+            let globalMax = parseFloat(document.getElementById('global-max').value) || 100;
+            let customPass = parseFloat(document.getElementById('pass-mark').value);
+            let passThreshold = isNaN(customPass) ? (globalMax / 2) : customPass;
+            
+            let totalScored = 0, subjectCount = 0, totalPassMarks = 0;
+
+            for(let i=0; i < marksArr.length; i++) {
+                let m = parseFloat(marksArr[i].value);
+                if(!isNaN(m)) { totalScored += m; subjectCount++; totalPassMarks += passThreshold; }
+            }
+
+            let totalPossible = subjectCount * globalMax;
+
+            if(totalPossible > 0) {
+                let percentage = (totalScored / totalPossible) * 100;
+                
+                let studentInput = document.getElementById('student-name-input').value;
+                let displayBox = document.getElementById('display-student-name');
+                if(studentInput.trim() !== ""){
+                    displayBox.innerText = "STUDENT: " + studentInput.toUpperCase();
+                    displayBox.style.display = "block";
+                } else {
+                    displayBox.style.display = "none";
+                }
+
+                document.getElementById('final-result').style.display = "block";
+                document.getElementById('percentage').innerText = percentage.toFixed(1) + "%";
+                document.getElementById('summary').innerText = `Scored ${totalScored} out of ${totalPossible}`;
+
+                let bar = document.getElementById('progress-bar');
+                bar.style.width = percentage + "%";
+
+                let msgList = [];
+                if (totalScored < totalPassMarks) {
+                    bar.style.background = "#ef4444"; 
+                    msgList = affirmations.fail;
+                } else if (percentage < 85) {
+                    bar.style.background = "#ffde59"; 
+                    msgList = affirmations.pass;
+                } else {
+                    bar.style.background = "#2dd4bf"; 
+                    msgList = affirmations.elite;
+                    document.getElementById('yay-sound').play();
+                    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+                }
+                
+                document.getElementById('affirmation-text').innerText = msgList[Math.floor(Math.random() * msgList.length)];
+            }
+        }
+
+        function downloadPDF() {
+            const element = document.getElementById('report-content');
+            const footer = document.getElementById('pdf-footer');
+            
+            let studentName = document.getElementById('student-name-input').value.trim();
+            let finalFileName = 'StudyFlow_Report';
+            if (studentName !== "") {
+                finalFileName += '_' + studentName.replace(/\s+/g, '_');
+            }
+            finalFileName += '.pdf';
+
+            footer.style.display = "flex";
+            
+            const opt = {
+                margin: 10,
+                filename: finalFileName,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, backgroundColor: '#0f172a' },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                footer.style.display = "none";
+            });
+        }
+    </script>
+</body>
+</html>
